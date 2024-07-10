@@ -1,0 +1,48 @@
+.border:nth-child(1), .border:nth-child(2) {
+    border-right: #8482fb solid 2px;
+}
+
+.row:nth-child(2), .row:nth-child(3) {
+
+    border-top: #8482fb solid 2px;
+}
+
+.label-score {
+    padding: 3px;
+}
+
+ion-col {
+    text-align: center;
+}
+
+    .card-grille {
+        max-width: 450px;
+        max-height: 450px;
+        margin: 1px auto;
+        
+        .grille {
+            width: 90vw;
+            height: 90vw;
+            max-width: 450px;
+            max-height: 450px;
+            display: flex;
+            flex-direction: column;
+    
+            ion-row {
+                height: 100%;
+                
+                ion-col {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    
+                    ion-icon {
+                        transform: scale(2);
+    
+                    }
+    
+                }
+            }
+            
+        }
+    }

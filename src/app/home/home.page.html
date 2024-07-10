@@ -1,20 +1,52 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-icon name="game-controller" size="large"></ion-icon>
+    </ion-buttons>
     <ion-title>
-      Blank
+      MORPION S2
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-title>
+    Welcome to Morpion S2
+  </ion-title>
+  <p color="medium" class="justify">
+    This is a simple two-player (You and Bot) game where each player takes turns marking a 3x3 grid with their symbol (X or O). The goal is to be the first to get three of their symbols in a row, column, or diagonal. The game ends in a win for one player or a draw if the grid is fully marked without any player achieving the goal. A game has 10 rounds.
+  </p>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <span>To start, tell us you name:</span>
+  
+  <ion-card>
+    <ion-input placeholder="Enter your name here" [(ngModel)]="name"></ion-input>
+  </ion-card>
+
+  <span>Choose pion:</span>
+  
+  <ion-card>
+    <ion-grid>
+      <ion-row>
+
+        <ion-col>
+          <ion-buttons (click)="choosePion(1)" [class]="pion == 1 ? 'choisis' : '' ">
+            <ion-icon name="radio-button-off" size="large"></ion-icon>
+          </ion-buttons>
+        </ion-col>
+
+        <ion-col>
+          <ion-buttons (click)="choosePion(5)" [class]="pion == 5 ? 'choisis' : '' ">
+            <ion-icon name="close" size="large"></ion-icon>
+          </ion-buttons>
+        </ion-col>
+
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
+  <ion-button color="tertiary" expand="block" shape="round" [disabled]="name ? false : true " (click)="start()">
+    Start
+    <ion-icon name="play-circle" slot="end"></ion-icon>
+  </ion-button>
 </ion-content>

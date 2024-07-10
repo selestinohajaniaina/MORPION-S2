@@ -1,27 +1,31 @@
-#container {
-  text-align: center;
+ion-content {
+  
+  ion-title {
+    text-align: center;
+  }
+  
+  p {
+    padding: 4px;
+    text-align: justify;
+    color: gray;
+    font-size: small;
+  }
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
+  ion-col {
+    display: flex;
+    justify-content: center;
+    
+    ion-buttons {
+      border: solid 1px #fff;
+      text-align: center;
+      color: #fff;
+      width: fit-content;
+      padding: 5px;
+    }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
+    .choisis {
+      background-color: #135d54;
+    }
+  }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
 }

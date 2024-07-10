@@ -1,0 +1,44 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-icon name="grid-outline" size="large"></ion-icon>
+    </ion-buttons>
+    <ion-title>Manche n°: {{ partie.manche.length + 1 }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <span class="label-score">Score:</span>
+  <ion-card>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-icon name="person-circle-outline"></ion-icon>
+          {{ player.name.toUpperCase() }}: {{ playerScore }}
+        </ion-col>
+        <ion-col>
+          <ion-icon name="skull-outline"></ion-icon>
+          NULL: {{ nullScore }}
+        </ion-col>
+        <ion-col>
+          <ion-icon name="logo-twitch"></ion-icon>
+          BOT: {{ botScore }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
+  <ion-card class="card-grille">
+    <ion-grid class="grille">
+      
+      <ion-row *ngFor="let row of manche.grille.case; let index_row = index" class="row">
+        <ion-col class="border" *ngFor="let col of row; let index_col = index" (click)="choose(index_row, index_col)">
+          <ion-icon name="radio-button-off" size="large" *ngIf="col == 1"></ion-icon>
+          <ion-icon name="close" size="large" *ngIf="col == 5"></ion-icon>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+  </ion-card>
+</ion-content>
