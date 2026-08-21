@@ -19,6 +19,10 @@ const routes: Routes = [
     path: 'over/:status/:playerscore/:nullscore/:botscore',
     loadChildren: () => import('./over/over.module').then( m => m.OverPageModule)
   },
+  {
+    path: 'scan',
+    loadChildren: () => import('./scan/scan.module').then( m => m.ScanPageModule)
+  },
 ];
 
 @NgModule({

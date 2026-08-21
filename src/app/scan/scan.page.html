@@ -1,0 +1,14 @@
+<ion-content [fullscreen]="true">
+  <div class="camera-container ion-padding">
+    <video #video autoplay playsinline muted></video>
+    <canvas #canvas></canvas>
+    <div class="action">
+      <ion-button expand="block">
+        Démarrer la caméra
+      </ion-button>
+      <ion-button expand="block" color="danger">
+        Arrêter
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

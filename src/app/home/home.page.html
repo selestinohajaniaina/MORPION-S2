@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-title>
     Welcome to Morpion S2
   </ion-title>
@@ -49,4 +49,10 @@
     Start
     <ion-icon name="play-circle" slot="end"></ion-icon>
   </ion-button>
+
+  <ion-button color="tertiary" expand="block" shape="round" routerLink="/scan">
+    Play with scan
+    <ion-icon name="play-circle" slot="end"></ion-icon>
+  </ion-button>
+
 </ion-content>
