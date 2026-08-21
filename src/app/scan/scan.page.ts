@@ -54,6 +54,6 @@ export class ScanPage implements OnInit {
 
     console.log('Caméra démarrée');
 
-    this.initCV();
+    // this.initCV();
   }
 }
