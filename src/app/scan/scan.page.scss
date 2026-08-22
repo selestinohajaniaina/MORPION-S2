@@ -1,27 +1,33 @@
 .camera-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    width: fit-content;
+    height: fit-content;
+    border: green solid 2px;
 
-    .action {
-        position: absolute;
-        bottom: 0;
+    img {
+        width: 100%;
     }
 
     video {
         width: 100%;
-        height: 100%;
-        display: block;
-        border: green solid 1px;
     }
 
-    canvas {
+    .op-cv-cn {
         position: absolute;
-        top: 0;
         left: 0;
+        top: 0;
         width: 100%;
         height: 100%;
-        display: block;
-        border: red solid 1px;
+        border: rgb(0, 54, 214) solid 1px;
+        opacity: 0;
+    }
+
+    .dr-cn {
+        position: absolute;
+        left: 0;
+        top: 100%;
+        width: 100%;
+        height: 100%;
+        border: rgb(200, 255, 0) solid 1px;
     }
 }
