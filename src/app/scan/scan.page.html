@@ -1,8 +1,18 @@
 <ion-content [fullscreen]="true">
-  <div class="camera-container ion-margin">
-    <!-- <img #image src="assets/image.png" alt="ArUco" (load)="detect()" /> -->
+  <!-- <img #image src="assets/image.png" alt="ArUco" (load)="detect()" /> -->
+  <!-- <div class="camera-container ion-margin">
     <video #video autoplay playsinline muted></video>
     <canvas #opencvCanvas class="op-cv-cn"></canvas>
     <canvas #drawCanvas class="dr-cn"></canvas>
-  </div>
+  </div> -->
+   <!-- <img
+    #cameraImage
+    class="camera-image"
+    alt="Camera"
+  > -->
+  <ion-button color="tertiary" expand="block" shape="round">
+    Stop
+    <ion-icon name="play-circle" slot="end"></ion-icon>
+  </ion-button>
+
 </ion-content>

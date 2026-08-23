@@ -27,6 +27,16 @@ export class HomePage {
 
   constructor(private router: Router) {}
 
+  ionViewDidEnter() {
+    const playerInStorage = localStorage.getItem('player');
+    const botInStorage = localStorage.getItem('bot');
+
+    if (playerInStorage) {
+      const _player = JSON.parse(playerInStorage);
+      this.name = _player.name;
+    }
+  }
+
   choosePion(pionForm: 1 | 5) {
     this.pion = pionForm;
   }
@@ -40,8 +50,6 @@ export class HomePage {
       this.player = new Player(this.name, this.playerPion);
       this.bot = new Bot(this.botPion, 'moyenne');
 
-      console.log(this.player, this.bot);
-      
       localStorage.setItem('player', JSON.stringify(this.player));
       localStorage.setItem('bot', JSON.stringify(this.bot));
       this.router.navigate(['game']);

@@ -1,13 +1,34 @@
-
 <ion-content [fullscreen]="true">
   <div class="relative" *ngIf="status=='win'">
     <h1>WINNER</h1>
-    <lottie-player src="../../../../assets/cup.json" background="transparent" loop autoplay></lottie-player>
-    <lottie-player class="absolute" src="../../../../assets/congrate.json" background="transparent" loop autoplay></lottie-player>
+    <lottie-player
+      src="../../../../assets/cup.json"
+      background="transparent"
+      loop
+      autoplay
+    ></lottie-player>
+    <lottie-player
+      class="absolute"
+      src="../../../../assets/congrate.json"
+      background="transparent"
+      loop
+      autoplay
+    ></lottie-player>
   </div>
   <div class="relative" *ngIf="status=='lose'">
-    <lottie-player src="../../../../assets/lose.json" background="transparent" loop autoplay></lottie-player>
-    <lottie-player class="absolute" src="../../../../assets/gameover.json" background="transparent" loop autoplay></lottie-player>
+    <lottie-player
+      src="../../../../assets/lose.json"
+      background="transparent"
+      loop
+      autoplay
+    ></lottie-player>
+    <lottie-player
+      class="absolute"
+      src="../../../../assets/gameover.json"
+      background="transparent"
+      loop
+      autoplay
+    ></lottie-player>
   </div>
   <div class="button">
     <ion-button shape="round" color="tertiary" [routerLink]="'/home'">
@@ -15,22 +36,33 @@
       Home
     </ion-button>
   </div>
+
   <ion-card>
     <ion-grid>
       <ion-row>
         <ion-col>
-          <ion-icon name="person-circle-outline"></ion-icon>
-          {{ player.name }}: {{ playerScore }}
+          <ion-icon name="person-circle-outline" size="large"></ion-icon>
+          {{ playerScore }}
         </ion-col>
         <ion-col>
-          <ion-icon name="skull-outline"></ion-icon>
-          NULL: {{ nullScore }}
+          <ion-icon name="skull-outline" size="large"></ion-icon>
+          {{ nullScore }}
         </ion-col>
         <ion-col>
-          <ion-icon name="logo-twitch"></ion-icon>
-          BOT: {{ botScore }}
+          <ion-icon name="logo-twitch" size="large"></ion-icon>
+          {{ botScore }}
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-card>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        {{ player.name.toUpperCase() }}
+      </ion-col>
+      <ion-col> NULL </ion-col>
+      <ion-col> BOT</ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

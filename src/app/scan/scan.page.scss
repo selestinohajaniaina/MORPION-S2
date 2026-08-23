@@ -1,3 +1,13 @@
+.camera-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+ion-content {
+  --background: transparent;
+}
+
 .camera-container {
     position: relative;
     width: fit-content;
