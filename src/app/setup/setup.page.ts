@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { HttpService } from '../services/http.service';
+import { Pion } from '../class/pion/pion';
+import { Player } from '../class/player/player';
 
 @Component({
   selector: 'app-setup',
@@ -72,20 +74,25 @@ export class SetupPage implements OnInit {
         this.name,
         `http://${this.adress.replace('/', '')}:${this.port}`
       )
-      .subscribe((res: any) => {
-        if (res) {
-          this.pion = res.player.toLowerCase() == 'o' ? 1 : 5;
-          loading.dismiss();
-          this.showMessage(
-            `You are registred to play with '${res.player}' as a pawn`,
-            'Server conected'
-          );
-          this.saveConfig();
-          this.router.navigate(['scan']);
+      .subscribe(
+        (res: any) => {
+          if (res) {
+            this.pion = res.player.toLowerCase() == 'o' ? 1 : 5;
+            loading.dismiss();
+            this.showMessage(
+              `You are registred to play with '${res.player}' as a pawn`,
+              'Server conected'
+            );
+            this.saveConfig();
+            this.router.navigate(['scan']);
+          }
+        },
+        (err) => {
+          console.log('server error: ', err);
+
+          this.showMessage(err.error.error, 'Server error');
         }
-      }, (err) => {
-        this.showMessage(err.error.error, 'Server error');
-      });
+      );
   }
 
   saveConfig() {
@@ -96,6 +103,13 @@ export class SetupPage implements OnInit {
         adress: this.adress,
         port: this.port,
       })
+    );
+
+    localStorage.setItem(
+      'player',
+      JSON.stringify(
+        new Player(this.name, new Pion(this.pion == 1 ? 'o' : 'x'))
+      )
     );
   }
 }

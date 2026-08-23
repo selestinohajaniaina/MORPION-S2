@@ -1,18 +1,20 @@
 <ion-content [fullscreen]="true">
   <!-- <img #image src="assets/image.png" alt="ArUco" (load)="detect()" /> -->
-  <!-- <div class="camera-container ion-margin">
-    <video #video autoplay playsinline muted></video>
+  <div class="camera-container ion-padding">
     <canvas #opencvCanvas class="op-cv-cn"></canvas>
-    <canvas #drawCanvas class="dr-cn"></canvas>
-  </div> -->
+    <!-- <canvas #drawCanvas class="dr-cn"></canvas> -->
+  </div>
    <!-- <img
     #cameraImage
     class="camera-image"
     alt="Camera"
   > -->
-  <ion-button color="tertiary" expand="block" shape="round">
-    Stop
-    <ion-icon name="play-circle" slot="end"></ion-icon>
-  </ion-button>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="center">
+    <ion-button shape="round" color="tertiary" (click)="leave()">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Home
+    </ion-button>
+  </ion-fab>
 
 </ion-content>

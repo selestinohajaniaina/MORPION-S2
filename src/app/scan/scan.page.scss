@@ -10,26 +10,14 @@ ion-content {
 
 .camera-container {
     position: relative;
-    width: fit-content;
-    height: fit-content;
+    width: 100vw;
+    height: 100vh;
     border: green solid 2px;
 
-    img {
-        width: 100%;
-    }
-
-    video {
-        width: 100%;
-    }
-
     .op-cv-cn {
-        position: absolute;
-        left: 0;
-        top: 0;
         width: 100%;
         height: 100%;
-        border: rgb(0, 54, 214) solid 1px;
-        opacity: 0;
+        border: #0036d6 solid 1px;
     }
 
     .dr-cn {
@@ -39,5 +27,11 @@ ion-content {
         width: 100%;
         height: 100%;
         border: rgb(200, 255, 0) solid 1px;
+        opacity: 0;
     }
+}
+
+.button {
+    display: flex;
+    justify-content: center;
 }
