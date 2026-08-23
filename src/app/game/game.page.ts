@@ -5,6 +5,8 @@ import { AlertController } from '@ionic/angular';
 import { Partie } from '../class/partie/partie';
 import { Manche } from '../class/manche/manche';
 import { Router } from '@angular/router';
+import { ModelMorpionService } from '../services/model-morpion.service';
+import { Grille } from '../class/grille/grille';
 
 @Component({
   selector: 'app-game',
@@ -27,12 +29,26 @@ export class GamePage implements OnInit {
 
   public mancheStartBy: 'player' | 'bot' = 'bot';
 
-  constructor(private alert: AlertController, private router: Router) {
-    this.manche = new Manche();
+  constructor(
+    private alert: AlertController,
+    private router: Router,
+    private model: ModelMorpionService,
+    private grilleService: Grille
+  ) {
+    this.initGame();
+  }
 
+  async ionViewDidEnter() {
+    this.initGame();
+  }
+
+  ngOnInit() {}
+
+  initGame() {
+    this.botScore = this.playerScore = this.nullScore = 0;
+    this.manche = new Manche();
     const playerInStorage = localStorage.getItem('player');
     const botInStorage = localStorage.getItem('bot');
-
     if (playerInStorage && botInStorage) {
       this.player = JSON.parse(playerInStorage);
       this.bot = JSON.parse(botInStorage);
@@ -51,7 +67,10 @@ export class GamePage implements OnInit {
     }
   }
 
-  ngOnInit() {
+  meilleurCoupBot(plateau: number[], next: any) {
+    this.model.meilleurCoup(plateau).then((coup) => {
+      next(coup);
+    });
   }
 
   start() {
@@ -76,13 +95,25 @@ export class GamePage implements OnInit {
   }
 
   botClick() {
-    if(this.theTour == "player") return;
-    let botPositionChoisis = Bot.getPosition(this.manche.grille.casesVide());
-    if (botPositionChoisis != undefined) {
-      this.botChoose(botPositionChoisis[0], botPositionChoisis[1]);
+    if (this.theTour == 'player') return;
+    // let botPositionChoisis = Bot.getPosition(this.manche.grille.casesVide());
+    // if (botPositionChoisis != undefined) {
+    //   this.botChoose(botPositionChoisis[0], botPositionChoisis[1]);
+    //   this.theTour = 'player';
+    //   this.verifyWinner();
+    // }
+
+    const plateau = this.grilleService.grilleToPlateau(this.manche.grille.case);
+    console.log('plateau recu: ', plateau);
+
+    this.meilleurCoupBot(plateau, (coup: number) => {
+      console.log('meilleur coup reseau : ', coup);
+      const position: [number, number] =
+        this.grilleService.indexToPosition(coup);
+      this.botChoose(position[0], position[1]);
       this.theTour = 'player';
       this.verifyWinner();
-    }
+    });
   }
 
   verifyWinner() {
@@ -90,29 +121,30 @@ export class GamePage implements OnInit {
     if (this.manche.grille.endManche) {
       this.partie.manche.push(this.manche);
 
-      this.manche = new Manche();
-      console.log('new manche', this.partie.manche);
+      setTimeout(() => {
+        this.manche = new Manche();
+        if (this.player.pion.form == 'o') {
+          this.formPionPlayer = 1;
+          this.theTour = 'bot';
+          this.mancheStartBy = 'bot';
+        } else {
+          this.theTour = 'player';
+          this.mancheStartBy = 'player';
+          this.formPionPlayer = 5;
+        }
+        this.start();
+        console.log('new manche', this.partie.manche);
 
-      if(this.mancheStartBy == 'bot') {
-        this.mancheStartBy = 'player';
-        this.theTour = 'player';
-      } else {
-        this.mancheStartBy = 'bot';
-        this.theTour = 'bot';
-        this.start()
-        console.log('start called');
-        
-      }
-
-      if (this.partie.manche.length >= 3) {
-        this.alertWin('La partie est terminer');
-      }
+        if (this.partie.manche.length >= 3) {
+          this.alertWin('La partie est terminer');
+        }
+      }, 1500);
     }
     this.calculScore();
   }
 
   playerChoose(row: number, col: number) {
-    if(this.theTour == "bot") return;
+    if (this.theTour == 'bot') return;
     this.theTour = 'bot';
     let pionPlacer = this.player.pion.form;
     this.manche.grille.placePion(row, col, pionPlacer == 'o' ? 1 : 5);
@@ -145,7 +177,6 @@ export class GamePage implements OnInit {
 
   async alertWin(msg: string) {
     setTimeout(async () => {
-      
       const alert = await this.alert.create({
         message: msg,
         buttons: ['ok'],
@@ -160,23 +191,21 @@ export class GamePage implements OnInit {
   }
 
   async leave() {
-
     const alert = await this.alert.create({
-        message: "Voullez-vous vraiment quitter la partie?",
-        buttons: [
-          {
-            text: "Rester"
+      message: 'Voullez-vous vraiment quitter la partie?',
+      buttons: [
+        {
+          text: 'Rester',
+        },
+        {
+          text: 'Quiter',
+          cssClass: 'secondary',
+          handler: () => {
+            this.router.navigate(['/home']);
           },
-          {
-            text: "Quiter",
-            cssClass: 'secondary',
-            handler: () => {
-              this.router.navigate(['/home'])
-            }
-          }
-        ],
-      });
-      alert.present();
-
+        },
+      ],
+    });
+    alert.present();
   }
 }
