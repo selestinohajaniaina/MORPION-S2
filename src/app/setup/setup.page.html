@@ -1,0 +1,70 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-icon name="hardware-chip" size="large"></ion-icon>
+    </ion-buttons>
+    <ion-title> PLAY AR </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-title> Configuration </ion-title>
+  <p color="medium" class="justify">
+    PLAY AR lets the Bot play free, let it uses your phone's camera to see the
+    game on White Board. To begin, give us the server's config to send a move,
+    by the bot.
+  </p>
+
+  <span>You name:</span>
+  
+  <ion-card>
+    <ion-input placeholder="Enter your name here" [(ngModel)]="name"></ion-input>
+  </ion-card>
+
+  <span>Server name (IP/Domaine):</span>
+  <ion-card>
+    <ion-input placeholder="eg: 192.x.x.x" [(ngModel)]="adress"></ion-input>
+  </ion-card>
+
+  <span>Access port:</span>
+  <ion-card>
+    <ion-input placeholder="eg: 3000" [(ngModel)]="port"></ion-input>
+  </ion-card>
+
+  <span>Bot's pawn:</span>
+  <ion-card>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-buttons
+            (click)="choosePion(1)"
+            [class]="pion == 1 ? 'choisis' : '' "
+          >
+            <ion-icon name="radio-button-off" size="large"></ion-icon>
+          </ion-buttons>
+        </ion-col>
+
+        <ion-col>
+          <ion-buttons
+            (click)="choosePion(5)"
+            [class]="pion == 5 ? 'choisis' : '' "
+          >
+            <ion-icon name="close" size="large"></ion-icon>
+          </ion-buttons>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
+  <div class="button">
+    <ion-button shape="round" color="tertiary" [routerLink]="'/home'">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Home
+    </ion-button>
+    <ion-button shape="round" color="tertiary" (click)="start()">
+      <ion-icon name="play-circle" slot="end"></ion-icon>
+      Start
+    </ion-button>
+  </div>
+
+</ion-content>

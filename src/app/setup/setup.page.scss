@@ -1,0 +1,36 @@
+ion-content {
+
+    ion-title {
+        text-align: center;
+    }
+
+    p {
+        padding: 4px;
+        text-align: justify;
+        color: gray;
+        font-size: small;
+    }
+
+    ion-col {
+        display: flex;
+        justify-content: center;
+
+        ion-buttons {
+            border: solid 1px #fff;
+            text-align: center;
+            color: #fff;
+            width: fit-content;
+            padding: 5px;
+        }
+
+        .choisis {
+            background-color: #135d54;
+        }
+    }
+
+}
+
+.button {
+    display: flex;
+    justify-content: space-around;
+}
