@@ -1,14 +1,8 @@
 <ion-content [fullscreen]="true">
-  <!-- <img #image src="assets/image.png" alt="ArUco" (load)="detect()" /> -->
   <div class="camera-container ion-padding">
     <canvas #opencvCanvas class="op-cv-cn"></canvas>
-    <!-- <canvas #drawCanvas class="dr-cn"></canvas> -->
+    <canvas #drawCanvas class="dr-cn"></canvas>
   </div>
-   <!-- <img
-    #cameraImage
-    class="camera-image"
-    alt="Camera"
-  > -->
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="center">
     <ion-button shape="round" color="tertiary" (click)="leave()">
@@ -16,5 +10,4 @@
       Home
     </ion-button>
   </ion-fab>
-
 </ion-content>

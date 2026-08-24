@@ -30,12 +30,6 @@
       autoplay
     ></lottie-player>
   </div>
-  <div class="button">
-    <ion-button shape="round" color="tertiary" [routerLink]="'/home'">
-      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-      Home
-    </ion-button>
-  </div>
 
   <ion-card>
     <ion-grid>
@@ -58,11 +52,16 @@
 
   <ion-grid>
     <ion-row>
-      <ion-col>
-        {{ player.name.toUpperCase() }}
-      </ion-col>
+      <ion-col> {{ player.name.toUpperCase() }} </ion-col>
       <ion-col> NULL </ion-col>
       <ion-col> BOT</ion-col>
     </ion-row>
   </ion-grid>
+
+  <div class="button">
+    <ion-button shape="round" color="tertiary" [routerLink]="'/home'">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Home
+    </ion-button>
+  </div>
 </ion-content>
