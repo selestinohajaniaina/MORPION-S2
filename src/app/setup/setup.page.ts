@@ -72,7 +72,7 @@ export class SetupPage implements OnInit {
     this.server
       .register(
         this.name,
-        `http://${this.adress.replace('/', '')}:${this.port}`
+        `${this.adress}:${this.port}`
       )
       .subscribe(
         (res: any) => {
@@ -90,7 +90,7 @@ export class SetupPage implements OnInit {
         (err) => {
           console.log('server error: ', err);
 
-          this.showMessage(err.error.error, 'Server error');
+          this.showMessage(err.error.error || err, 'Server error');
         }
       );
   }
