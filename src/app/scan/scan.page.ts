@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { CameraPreview } from '@capacitor-community/camera-preview';
 import { AlertController } from '@ionic/angular';
 import * as cs from '@techstark/opencv-js';
+import { HttpService } from '../services/http.service';
+import { ModelMorpionService } from '../services/model-morpion.service';
 
 @Component({
   selector: 'app-scan',
@@ -24,18 +26,87 @@ export class ScanPage {
   private result = '';
   private status = '';
 
+  public player!: 'X' | 'O' | null;
+  private adress!: string;
+
   public board: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   public boardInit: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  public boardPlayer: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   public viewCalcul: boolean = true;
 
-  constructor(private alert: AlertController, private router: Router) {}
+  constructor(
+    private alert: AlertController,
+    private router: Router,
+    private server: HttpService,
+    private model: ModelMorpionService
+  ) {}
 
   async ionViewDidEnter() {
     await this.StartCamera();
     this.running = true;
     this.detect();
+    this.getPayer();
     // pour developpement
     // this.detectImage();
+  }
+
+  getPayer() {
+    const serverConfig = localStorage.getItem('serverConfig');
+    if (serverConfig) {
+      const setup = JSON.parse(serverConfig);
+      this.player = setup.pion == 5 ? "X" : "O";
+      this.adress = setup.adress;
+      console.log("ser set", setup);
+      
+    }
+  }
+
+  detecterTour(): 'X' | 'O' | null {
+    const nombreX = this.boardPlayer.filter((value) => value === 1).length;
+    const nombreO = this.boardPlayer.filter((value) => value === -1).length;
+    // Plateau vide → X commence
+    if (nombreX === 0 && nombreO === 0) {
+      return 'X';
+    }
+    // X joue toujours si les deux ont le même nombre de coups
+    if (nombreX === nombreO) {
+      return 'X';
+    }
+    // Sinon O joue
+    if (nombreX === nombreO + 1) {
+      return 'O';
+    }
+    return null;
+  }
+
+  meilleurCoupBot(plateau: number[], next: any) {
+    this.model.meilleurCoup(plateau).then((coup) => {
+      next(coup);
+    });
+  }
+
+  jouer(board: (-1 | 0 | 1)[]) {
+    this.meilleurCoupBot(board, (coup: number) => {
+      const { row, col } = this.indexToPosition(coup);
+      console.log("player ", this.player);
+      
+      if (this.player)
+        this.server
+          .move(this.player, row, col, this.adress)
+          .subscribe((result: any) => {
+            console.log("result", result);
+            
+          });
+    });
+  }
+
+  async showMessage(msg: string, title: string = '') {
+    const alert = await this.alert.create({
+      header: title,
+      message: msg,
+      buttons: ['ok'],
+    });
+    alert.present();
   }
 
   /**
@@ -47,6 +118,19 @@ export class ScanPage {
    */
   positionToIndex(row: number, col: number, max = 3): number {
     return row * max + col;
+  }
+
+  /**
+   * Transformer un index de 0 à Maximum en combinaison [row][col]
+   * @param index Index de la case
+   * @param max Maximum index (taille d'une ligne/colonne)
+   * @returns { row, col }
+   */
+  indexToPosition(index: number, max = 3): { row: number; col: number } {
+    return {
+      row: Math.floor(index / max),
+      col: index % max,
+    };
   }
 
   async detectImage() {
@@ -75,7 +159,7 @@ export class ScanPage {
     })!;
     canvasDraw.width = image.width;
     canvasDraw.height = image.height;
-    // ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
+    ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
     // =========================
     // IMAGE OPENCV
     // =========================
@@ -215,93 +299,34 @@ export class ScanPage {
 
     for (let plateauRow = 0; plateauRow < 3; plateauRow++) {
       for (let plateauCol = 0; plateauCol < 3; plateauCol++) {
-        const xCase = xCaseInitial + wCaseInitial * plateauRow * 3;
-        const yCase = yCaseInitial + hCaseInitial * plateauCol * 3;
+        const xCase = xCaseInitial + wCaseInitial * plateauCol * 3;
+        const yCase = yCaseInitial + hCaseInitial * plateauRow * 3;
 
-        // this.DrawZone(ctxDraw, xCase, yCase, wCaseInitial, hCaseInitial);
+        if (this.viewCalcul) {
+          this.DrawZone(ctxDraw, xCase, yCase, wCaseInitial, hCaseInitial);
+        }
 
         const roi = src.roi(
           new cv.Rect(xCase, yCase, wCaseInitial, hCaseInitial)
         );
 
-        // 2. Convertir en HSV
-        const hsv = new cv.Mat();
-        cv.cvtColor(roi, hsv, cv.COLOR_RGBA2RGB);
-        cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
-        // 3. Créer les masques de couleur
-        // Rouge : couvre deux plages car la teinte "rouge" est à cheval sur 0/180 en HSV
-        const redLow1 = new cv.Mat();
-        const redLow2 = new cv.Mat();
-        const redMask = new cv.Mat();
-        const greenMask = new cv.Mat();
-        const lowRed1 = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [0, 100, 80, 0]
-        );
-        const highRed1 = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [10, 255, 255, 255]
-        );
-        const lowRed2 = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [170, 100, 80, 0]
-        );
-        const highRed2 = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [180, 255, 255, 255]
-        );
-        cv.inRange(hsv, lowRed1, highRed1, redLow1);
-        cv.inRange(hsv, lowRed2, highRed2, redLow2);
-        cv.bitwise_or(redLow1, redLow2, redMask);
-        const lowGreen = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [40, 70, 70, 0]
-        );
-        const highGreen = new cv.Mat(
-          hsv.rows,
-          hsv.cols,
-          hsv.type(),
-          [80, 255, 255, 255]
-        );
-        cv.inRange(hsv, lowGreen, highGreen, greenMask);
-        // 4. Compter les pixels colorés
-        const totalPixels = wCaseInitial * hCaseInitial;
-        const redCount = cv.countNonZero(redMask);
-        const greenCount = cv.countNonZero(greenMask);
-        const redRatio = redCount / totalPixels;
-        const greenRatio = greenCount / totalPixels;
-        // 5. Nettoyage mémoire (CRITIQUE en OpenCV.js, pas de garbage collector automatique sur les Mats)
-        roi.delete();
-        hsv.delete();
-        redLow1.delete();
-        redLow2.delete();
-        redMask.delete();
-        greenMask.delete();
-        lowRed1.delete();
-        highRed1.delete();
-        lowRed2.delete();
-        highRed2.delete();
-        lowGreen.delete();
-        highGreen.delete();
-        const minPixelRatio: number = 0.05;
-        console.log(
-          `case [${plateauRow}][${plateauCol}] r=${redRatio} g=${greenRatio} haveR=${
-            redRatio > minPixelRatio
-          } haveG=${greenRatio > minPixelRatio}`
-        );
+        // Convertir en RGB (src est en RGBA depuis cv.imread)
+        const rgb = new cv.Mat();
+        cv.cvtColor(roi, rgb, cv.COLOR_RGBA2RGB);
 
-        const isX = redRatio > minPixelRatio;
-        const isO = greenRatio > minPixelRatio;
+        // Couleur moyenne de la zone : [R, G, B, alpha]
+        const mean = cv.mean(rgb);
+        const [r, g, b, a] = mean;
+
+        roi.delete();
+        rgb.delete();
+
+        // Différence entre canaux : signal clé pour distinguer rouge/vert/blanc
+        const diffRG = r - g;
+        const threshold = 0; // marge de sécurité (tes écarts réels sont ~165-170)
+        const isX = diffRG > threshold; // rouge : R domine
+        const isO = diffRG < -threshold; // vert : G domine
+
         this.board[this.positionToIndex(plateauRow, plateauCol)] = isX
           ? 1
           : isO
@@ -310,10 +335,14 @@ export class ScanPage {
       }
     }
 
-    this.drawSquarePoint(ctxDraw, pointOrdered);
-    this.drawRectangles(ctxDraw, pointOrdered);
-    this.drawLine(ctxDraw, pointOrdered);
-    this.drawText(ctxDraw, pointOrdered, this.board);
+    if (this.viewCalcul) {
+      this.drawSquarePoint(ctxDraw, pointOrdered);
+    }
+    this.drawRectangles(ctxDraw, pointOrdered, 'blue');
+    this.drawLine(ctxDraw, pointOrdered, 'blue');
+    this.drawText(ctxDraw, pointOrdered, this.board, {
+      fontSize: wCaseInitial * 2,
+    });
 
     // =========================
     // LIBERATION
@@ -330,6 +359,18 @@ export class ScanPage {
     }
   }
 
+  detectColor(r: number, g: number, b: number): 'red' | 'green' | 'none' {
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const saturation = max === 0 ? 0 : (max - min) / max;
+    if (saturation < 0.3) return 'none'; // trop proche du gris/blanc
+    const redScore = r - (g + b) / 2;
+    const greenScore = g - (r + b) / 2;
+    if (redScore > 40) return 'red';
+    if (greenScore > 40) return 'green';
+    return 'none';
+  }
+
   /**
    * Tracer une zone
    * @param ctx Canva context
@@ -337,16 +378,18 @@ export class ScanPage {
    * @param y Position Verticale
    * @param width Largeur
    * @param height Hauteur
+   * @param color Couleur RGBA
    */
   DrawZone(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    color: `rgba(${number}, ${number}, ${number}, ${number})` = 'rgba(0, 64, 255, 0.71)'
   ) {
     ctx.strokeRect(x, y, width, height);
-    ctx.fillStyle = 'rgba(0, 64, 255, 0.71)';
+    ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height);
   }
 
@@ -440,8 +483,8 @@ export class ScanPage {
    * @param topRight Point 1
    * @param bottomRight Point 2
    * @param bottomLeft Point 3
-   * @param u 
-   * @param v 
+   * @param u
+   * @param v
    * @returns lerp
    */
   bilinear(
@@ -544,7 +587,7 @@ export class ScanPage {
     points.map(({ x, y }, index) => {
       // Gros point rouge
       ctx.beginPath();
-      ctx.arc(x, y, 12, 0, 2 * Math.PI);
+      ctx.arc(x, y, 6, 0, 2 * Math.PI);
       ctx.fillStyle = 'red';
       ctx.fill();
 
@@ -596,6 +639,7 @@ export class ScanPage {
           text: 'Quiter',
           cssClass: 'secondary',
           handler: () => {
+            this.StopCamera();
             this.router.navigate(['/home']);
           },
         },
@@ -782,99 +826,34 @@ export class ScanPage {
         for (let plateauRow = 0; plateauRow < 3; plateauRow++) {
           for (let plateauCol = 0; plateauCol < 3; plateauCol++) {
             // Coordonnées
-            const xCase = xCaseInitial + wCaseInitial * plateauRow * 3;
-            const yCase = yCaseInitial + hCaseInitial * plateauCol * 3;
+            const xCase = xCaseInitial + wCaseInitial * plateauCol * 3;
+            const yCase = yCaseInitial + hCaseInitial * plateauRow * 3;
 
-            // Afficher la zone de recherche
-            if(this.viewCalcul) this.DrawZone(ctxDraw, xCase, yCase, wCaseInitial, hCaseInitial);
+            if (this.viewCalcul) {
+              this.DrawZone(ctxDraw, xCase, yCase, wCaseInitial, hCaseInitial);
+            }
 
-            // 1. Transformer en roi
             const roi = src.roi(
               new cv.Rect(xCase, yCase, wCaseInitial, hCaseInitial)
             );
 
-            // 2. Convertir en HSV
-            const hsv = new cv.Mat();
-            cv.cvtColor(roi, hsv, cv.COLOR_RGBA2RGB);
-            cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
+            // Convertir en RGB (src est en RGBA depuis cv.imread)
+            const rgb = new cv.Mat();
+            cv.cvtColor(roi, rgb, cv.COLOR_RGBA2RGB);
 
-            // 3. Créer les masques de couleur
-            // Rouge : couvre deux plages car la teinte "rouge" est à cheval sur 0/180 en HSV
-            const redLow1 = new cv.Mat();
-            const redLow2 = new cv.Mat();
-            const redMask = new cv.Mat();
-            const greenMask = new cv.Mat();
-            const lowRed1 = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [0, 100, 80, 0]
-            );
-            const highRed1 = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [10, 255, 255, 255]
-            );
-            const lowRed2 = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [170, 100, 80, 0]
-            );
-            const highRed2 = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [180, 255, 255, 255]
-            );
-            cv.inRange(hsv, lowRed1, highRed1, redLow1);
-            cv.inRange(hsv, lowRed2, highRed2, redLow2);
-            cv.bitwise_or(redLow1, redLow2, redMask);
-            const lowGreen = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [40, 70, 70, 0]
-            );
-            const highGreen = new cv.Mat(
-              hsv.rows,
-              hsv.cols,
-              hsv.type(),
-              [80, 255, 255, 255]
-            );
-            cv.inRange(hsv, lowGreen, highGreen, greenMask);
+            // Couleur moyenne de la zone : [R, G, B, alpha]
+            const mean = cv.mean(rgb);
+            const [r, g, b, a] = mean;
 
-            // 4. Compter les pixels colorés
-            const totalPixels = wCaseInitial * hCaseInitial;
-            const redCount = cv.countNonZero(redMask);
-            const greenCount = cv.countNonZero(greenMask);
-            const redRatio = redCount / totalPixels;
-            const greenRatio = greenCount / totalPixels;
-
-            // 5. Nettoyage mémoire (CRITIQUE en OpenCV.js, pas de garbage collector automatique sur les Mats)
             roi.delete();
-            hsv.delete();
-            redLow1.delete();
-            redLow2.delete();
-            redMask.delete();
-            greenMask.delete();
-            lowRed1.delete();
-            highRed1.delete();
-            lowRed2.delete();
-            highRed2.delete();
-            lowGreen.delete();
-            highGreen.delete();
-            const minPixelRatio: number = 0.05;
-            console.log(
-              `case [${plateauRow}][${plateauCol}] r=${redRatio} g=${greenRatio} haveR=${
-                redRatio > minPixelRatio
-              } haveG=${greenRatio > minPixelRatio}`
-            );
+            rgb.delete();
 
-            // MAJ du board
-            const isX = redRatio > minPixelRatio;
-            const isO = greenRatio > minPixelRatio;
+            // Différence entre canaux : signal clé pour distinguer rouge/vert/blanc
+            const diffRG = r - g;
+            const threshold = 15; // marge de sécurité (tes écarts réels sont ~165-170)
+            const isX = diffRG > threshold; // rouge : R domine
+            const isO = diffRG < -threshold; // vert : G domine
+
             this.board[this.positionToIndex(plateauRow, plateauCol)] = isX
               ? 1
               : isO
@@ -886,10 +865,18 @@ export class ScanPage {
         // =========================
         // DESSINER SUR CANVAS
         // =========================
-        if(this.viewCalcul) this.drawSquarePoint(ctxDraw, pointOrdered);
+        if (this.viewCalcul) this.drawSquarePoint(ctxDraw, pointOrdered);
         this.drawRectangles(ctxDraw, pointOrdered);
         this.drawLine(ctxDraw, pointOrdered);
-        this.drawText(ctxDraw, pointOrdered, this.board);
+        this.drawText(ctxDraw, pointOrdered, this.board, {
+          fontSize: wCaseInitial * 2,
+        });
+
+        if (this.detecterTour() == this.player) {
+          // garder le board precedant
+          this.boardPlayer = this.board;
+          this.jouer(this.boardPlayer);
+        }
 
         // =========================
         // LIBERATION

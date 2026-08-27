@@ -11,4 +11,8 @@ export class HttpService {
   register(name: String, url: string) {
     return this.http.post(`${url}/register`, {name});
   }
+
+  move(player: "X" | "O", row: number, col: number, url: string) {
+    return this.http.post(`${url}/move`, {player, row, col});
+  }
 }
