@@ -9,6 +9,7 @@ ion-content {
     width: 100%;
     height: 12vh;
     padding: 2vh;
+    z-index: 1000;
     // border: red solid 1px;
 
     .header-content {
@@ -20,10 +21,11 @@ ion-content {
         justify-content: center;
         align-items: center;
         border-radius: 500px;
+        --background-opacity: 0.8;
         background: linear-gradient(135deg,
-                rgba(223, 246, 255, 0.55),
-                rgba(166, 220, 239, 0.55),
-                rgba(224, 247, 250, 0.55));
+                rgba(223, 246, 255, var(--background-opacity)),
+                rgba(166, 220, 239, var(--background-opacity)),
+                rgba(224, 247, 250, var(--background-opacity)));
         background-size: 400% 400%;
         animation: glacierFlow 2s ease infinite;
 
@@ -97,7 +99,7 @@ ion-content {
         width: 100%;
         height: 100%;
         // border: #0036d6 solid 1px;
-        opacity: 0;
+        // opacity: 0;
     }
 
     .dr-cn {

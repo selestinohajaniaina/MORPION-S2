@@ -1,4 +1,5 @@
 <ion-content [fullscreen]="true">
+  <img #sourceImage src="assets/image.png" style="display:none">
 
   <div class="header">
     <div class="header-content">
@@ -18,4 +19,12 @@
       Home
     </ion-button>
   </ion-fab>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button shape="round" color="light" (click)="viewCalcul = !viewCalcul">
+      <ion-icon *ngIf="viewCalcul" name="eye-outline"></ion-icon>
+      <ion-icon *ngIf="!viewCalcul" name="eye-off-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>
