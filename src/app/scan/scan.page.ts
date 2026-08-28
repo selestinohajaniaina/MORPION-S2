@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CameraPreview } from '@capacitor-community/camera-preview';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import * as cs from '@techstark/opencv-js';
 import { HttpService } from '../services/http.service';
 import { ModelMorpionService } from '../services/model-morpion.service';
@@ -28,6 +28,7 @@ export class ScanPage {
 
   public player!: 'X' | 'O' | null;
   private adress!: string;
+  private port!: number;
 
   public board: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   public boardInit: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -36,6 +37,7 @@ export class ScanPage {
 
   constructor(
     private alert: AlertController,
+    private toast: ToastController,
     private router: Router,
     private server: HttpService,
     private model: ModelMorpionService
@@ -56,6 +58,7 @@ export class ScanPage {
       const setup = JSON.parse(serverConfig);
       this.player = setup.pion == 5 ? "X" : "O";
       this.adress = setup.adress;
+      this.port = setup.port;
       console.log("ser set", setup);
       
     }
@@ -88,25 +91,26 @@ export class ScanPage {
   jouer(board: (-1 | 0 | 1)[]) {
     this.meilleurCoupBot(board, (coup: number) => {
       const { row, col } = this.indexToPosition(coup);
-      console.log("player ", this.player);
+      console.log("player ", this.player, " want to play on", coup);
       
       if (this.player)
         this.server
-          .move(this.player, row, col, this.adress)
+          .move(this.player, row, col, `${this.adress}:${this.port}`)
           .subscribe((result: any) => {
             console.log("result", result);
-            
-          });
+          },
+        (err) => {
+          this.showMessage(err.error.error || err.message || err, "Server Error");
+          console.log("erreur server", err);
+        });
     });
   }
 
   async showMessage(msg: string, title: string = '') {
-    const alert = await this.alert.create({
-      header: title,
-      message: msg,
-      buttons: ['ok'],
+    const alert = await this.toast.create({
+      message: msg
     });
-    alert.present();
+    await alert.present();
   }
 
   /**
@@ -850,7 +854,7 @@ export class ScanPage {
 
             // Différence entre canaux : signal clé pour distinguer rouge/vert/blanc
             const diffRG = r - g;
-            const threshold = 15; // marge de sécurité (tes écarts réels sont ~165-170)
+            const threshold = 0; // marge de sécurité (tes écarts réels sont ~165-170)
             const isX = diffRG > threshold; // rouge : R domine
             const isO = diffRG < -threshold; // vert : G domine
 

@@ -51,6 +51,12 @@ ion-content {
             z-index: 1;
             transform: scale(3);
         }
+
+        ion-text {
+            position: absolute;
+            right: 10%;
+            transform: scale(2);
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 import { HttpService } from '../services/http.service';
 import { Pion } from '../class/pion/pion';
 import { Player } from '../class/player/player';
@@ -18,7 +18,7 @@ export class SetupPage implements OnInit {
 
   constructor(
     private router: Router,
-    private alert: AlertController,
+    private toast: ToastController,
     private loading: LoadingController,
     private server: HttpService
   ) {}
@@ -42,9 +42,6 @@ export class SetupPage implements OnInit {
     }
   }
 
-  choosePion(pionForm: 1 | 5) {
-    this.pion = pionForm;
-  }
 
   start() {
     if (this.adress && this.port) {
@@ -55,12 +52,11 @@ export class SetupPage implements OnInit {
   }
 
   async showMessage(msg: string, title: string = '') {
-    const alert = await this.alert.create({
-      header: title,
+    const alert = await this.toast.create({
       message: msg,
-      buttons: ['ok'],
+      duration: 1500
     });
-    alert.present();
+    await alert.present();
   }
 
   async showLoading() {
@@ -68,7 +64,8 @@ export class SetupPage implements OnInit {
       message: 'Checking server connection...',
       duration: 2000,
     });
-    loading.present();
+    await loading.present();
+    await loading.onWillDismiss();
     this.server
       .register(
         this.name,
@@ -78,11 +75,11 @@ export class SetupPage implements OnInit {
         (res: any) => {
           if (res) {
             this.pion = res.player.toLowerCase() == 'o' ? 1 : 5;
-            loading.dismiss();
             this.showMessage(
               `You are registred to play with '${res.player}' as a pawn`,
               'Server conected'
             );
+            loading.dismiss();
             this.saveConfig();
             this.router.navigate(['scan']);
           }
@@ -90,7 +87,7 @@ export class SetupPage implements OnInit {
         (err) => {
           console.log('server error: ', err);
 
-          this.showMessage(err.error.error || err, 'Server error');
+          this.showMessage(err.error.error || err.message || err, 'Server error');
         }
       );
   }
