@@ -48,3 +48,38 @@ ion-col {
 
     }
 }
+
+.absolute {
+    position: absolute;
+    top: 0;
+}
+
+.relative {
+    position: relative;
+}
+
+ion-modal {
+    --background: rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#example-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#example-modal h1 {
+  text-align: center;
+  font-weight: bolder;
+}
+
+ion-modal#example-modal .wrapper {
+  margin-bottom: 10px;
+}
+
+ion-modal#example-modal ion-button {
+  width: fit-content;
+  margin: 2px auto;
+}

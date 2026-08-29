@@ -32,16 +32,16 @@
     <ion-row>
       <ion-col> {{ playerName }} ({{player}}) </ion-col>
       <ion-col> NULL </ion-col>
-      <ion-col> {{ opponentName ? opponentName + ' (' + getOpponent(player) + ')' : 'OPPONENT (...)' }}</ion-col>
+      <ion-col>
+        {{ opponentName ? opponentName + ' (' + getOpponent(player) + ')' :
+        'OPPONENT (...)' }}</ion-col
+      >
     </ion-row>
   </ion-grid>
 
   <ion-card class="card-grille">
     <ion-grid class="grille">
-      <ion-row
-        *ngFor="let row of board; let index_row = index"
-        class="row"
-      >
+      <ion-row *ngFor="let row of board; let index_row = index" class="row">
         <ion-col
           class="border"
           *ngFor="let col of row; let index_col = index"
@@ -66,4 +66,57 @@
       LEAVE
     </ion-button>
   </ion-fab>
+
+  <ion-modal id="example-modal" #modal trigger="open-custom-dialog">
+    <ng-template>
+      <div class="wrapper">
+        <div class="relative" *ngIf="status=='win'">
+          <h1>WINNER</h1>
+          <lottie-player
+            src="assets/cup.json"
+            background="transparent"
+            loop
+            autoplay
+          ></lottie-player>
+          <lottie-player
+            class="absolute"
+            src="assets/congrate.json"
+            background="transparent"
+            loop
+            autoplay
+          ></lottie-player>
+        </div>
+        <div class="relative" *ngIf="status=='lose'">
+          <lottie-player
+            src="../../../../assets/lose.json"
+            background="transparent"
+            loop
+            autoplay
+          ></lottie-player>
+          <lottie-player
+            class="absolute"
+            src="../../../../assets/gameover.json"
+            background="transparent"
+            loop
+            autoplay
+          ></lottie-player>
+        </div>
+      </div>
+
+      <ion-button
+        mode="ios"
+        size="large"
+        color="tertiary"
+        expand=""
+        [routerLink]="'/setup'"
+        (click)="modal.dismiss()"
+      >
+        <ion-icon
+          name="refresh-outline"
+          slot="icon-only"
+          size="large"
+        ></ion-icon>
+      </ion-button>
+    </ng-template>
+  </ion-modal>
 </ion-content>
