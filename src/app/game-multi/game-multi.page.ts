@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Manche } from '../class/manche/manche';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { HttpService } from '../services/http.service';
+import { SocketService } from '../services/socket.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-game-multi',
@@ -9,22 +12,32 @@ import { Router } from '@angular/router';
   styleUrls: ['./game-multi.page.scss'],
 })
 export class GameMultiPage implements OnInit {
-  public player!: 'X' | 'O' | null;
+  public player!: 'X' | 'O';
   public playerName!: string;
-  public botScore: number = 0;
+  public opponentName!: string;
+  public opponentScore: number = 0;
   public playerScore: number = 0;
   public nullScore: number = 0;
   public manche!: Manche;
-  public theTour: 'you' | 'opponent' = 'you';
+  public theTour!: 'you' | 'opponent';
+  public board: ('X' | 'O' | null)[][] = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ];
 
   private adress!: string;
   private port!: number;
+  private socketService!: SocketService;
+  private destroy$ = new Subject<void>();
 
-  constructor(private alert: AlertController, private router: Router) {}
+  constructor(
+    private alert: AlertController,
+    private router: Router,
+    private server: HttpService
+  ) {}
 
-  ngOnInit() {
-    this.getPayer();
-  }
+  ngOnInit() {}
 
   ionViewDidEnter() {
     this.getPayer();
@@ -39,17 +52,18 @@ export class GameMultiPage implements OnInit {
       this.player = setup.pion == 5 ? 'X' : 'O';
       this.adress = setup.adress;
       this.port = setup.port;
+      this.listenSocket();
     }
     if (_player) {
       const _playerJson = JSON.parse(_player);
       this.playerName = _playerJson.name;
     }
-    console.log('pl', _player, 'sr', serverConfig);
   }
 
   async choose(row: number, col: number) {
-    this.manche.grille.isPlayerTour = false;
-    if (this.manche.grille.case[row][col] == 0) {
+    console.log("choose", row, col, this.board[row][col]);
+    
+    if (this.board[row][col] == null) {
       this.playerChoose(row, col);
     } else {
       const alert = await this.alert.create({
@@ -63,8 +77,11 @@ export class GameMultiPage implements OnInit {
   playerChoose(row: number, col: number) {
     if (this.theTour == 'opponent') return;
     this.theTour = 'you';
-    let pionPlacer = this.player;
-    this.manche.grille.placePion(row, col, pionPlacer == 'O' ? 1 : 5);
+    this.server.move(this.player, row, col, `${this.adress}:${this.port}`)
+      .subscribe((res) => {
+        console.log("res", res);
+        
+      })
   }
 
   async leave() {
@@ -84,5 +101,34 @@ export class GameMultiPage implements OnInit {
       ],
     });
     alert.present();
+  }
+
+  getOpponent(myPlayer: 'X' | 'O'): 'X' | 'O' {
+    return myPlayer == 'O' ? 'X' : 'O';
+  }
+
+  listenSocket() {
+    this.socketService = new SocketService(`${this.adress}:${this.port}`);
+    this.socketService.message$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        const { board, players, log, currentPlayer } = data;
+        const opponent = players[this.getOpponent(this.player)];
+
+        if (opponent.connected) {
+          this.opponentName = opponent.name;
+        }
+
+        this.board = board;
+
+        this.theTour = currentPlayer == this.player ? 'you' : 'opponent';
+
+        console.log('State', data);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -15,4 +15,8 @@ export class HttpService {
   move(player: "X" | "O", row: number, col: number, url: string) {
     return this.http.post(`${url}/move`, {player, row, col});
   }
+
+  state(url: string) {
+    return this.http.get(`${url}/state`);
+  }
 }

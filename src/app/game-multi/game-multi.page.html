@@ -22,7 +22,7 @@
         </ion-col>
         <ion-col>
           <ion-icon name="logo-twitch" size="large"></ion-icon>
-          {{ botScore }}
+          {{ opponentScore }}
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -32,14 +32,14 @@
     <ion-row>
       <ion-col> {{ playerName }} ({{player}}) </ion-col>
       <ion-col> NULL </ion-col>
-      <ion-col> OPPONENT ()</ion-col>
+      <ion-col> {{ opponentName ? opponentName + ' (' + getOpponent(player) + ')' : 'OPPONENT (...)' }}</ion-col>
     </ion-row>
   </ion-grid>
 
   <ion-card class="card-grille">
     <ion-grid class="grille">
       <ion-row
-        *ngFor="let row of manche.grille.case; let index_row = index"
+        *ngFor="let row of board; let index_row = index"
         class="row"
       >
         <ion-col
@@ -50,9 +50,9 @@
           <ion-icon
             name="radio-button-off"
             size="large"
-            *ngIf="col == 1"
+            *ngIf="col == 'O'"
           ></ion-icon>
-          <ion-icon name="close" size="large" *ngIf="col == 5"></ion-icon>
+          <ion-icon name="close" size="large" *ngIf="col == 'X'"></ion-icon>
         </ion-col>
       </ion-row>
     </ion-grid>
