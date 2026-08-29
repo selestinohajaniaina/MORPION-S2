@@ -37,11 +37,11 @@
     <ion-input placeholder="eg: 3000" [(ngModel)]="port"></ion-input>
   </ion-card>
 
-  <ion-button shape="round" expand="block" color="tertiary" (click)="start()">
+  <ion-button shape="round" expand="block" color="tertiary" (click)="start('scan')">
     <ion-icon name="logo-ionitron" slot="end"></ion-icon>
     Start as BOT
   </ion-button>
-  <ion-button shape="round" expand="block" color="tertiary" [routerLink]="'/game-multi'">
+  <ion-button shape="round" expand="block" color="tertiary" (click)="start('game-multi')">
     <ion-icon name="person-outline" slot="end"></ion-icon>
     Start as Human
   </ion-button>

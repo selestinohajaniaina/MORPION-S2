@@ -43,9 +43,9 @@ export class SetupPage implements OnInit {
   }
 
 
-  start() {
+  start(page: string) {
     if (this.adress && this.port) {
-      this.showLoading();
+      this.showLoading(page);
     } else {
       this.showMessage('Veillez tous remplir!');
     }
@@ -59,7 +59,7 @@ export class SetupPage implements OnInit {
     await alert.present();
   }
 
-  async showLoading() {
+  async showLoading(page: string) {
     const loading = await this.loading.create({
       message: 'Checking server connection...',
       duration: 2000,
@@ -81,7 +81,7 @@ export class SetupPage implements OnInit {
             );
             loading.dismiss();
             this.saveConfig();
-            this.router.navigate(['scan']);
+            this.router.navigate([page]);
           }
         },
         (err) => {
