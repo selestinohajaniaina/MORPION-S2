@@ -44,12 +44,12 @@ export class ScanPage {
   ) {}
 
   async ionViewDidEnter() {
-    await this.StartCamera();
-    this.running = true;
-    this.detect();
+    // await this.StartCamera();
+    // this.running = true;
+    // this.detect();
     this.getPayer();
     // pour developpement
-    // this.detectImage();
+    this.detectImage();
   }
 
   getPayer() {
@@ -644,7 +644,7 @@ export class ScanPage {
           cssClass: 'secondary',
           handler: () => {
             this.StopCamera();
-            this.router.navigate(['/home']);
+            this.router.navigate(['/setup']);
           },
         },
       ],

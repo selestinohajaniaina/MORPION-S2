@@ -1,0 +1,69 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-icon name="people-outline" size="large"></ion-icon>
+    </ion-buttons>
+    <ion-title>{{ playerName }} ({{player}})</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <span class="label-score">Score:</span>
+  <ion-card>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-icon name="person-circle-outline" size="large"></ion-icon>
+          {{ playerScore }}
+        </ion-col>
+        <ion-col>
+          <ion-icon name="skull-outline" size="large"></ion-icon>
+          {{ nullScore }}
+        </ion-col>
+        <ion-col>
+          <ion-icon name="logo-twitch" size="large"></ion-icon>
+          {{ botScore }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col> {{ playerName }} ({{player}}) </ion-col>
+      <ion-col> NULL </ion-col>
+      <ion-col> OPPONENT ()</ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card class="card-grille">
+    <ion-grid class="grille">
+      <ion-row
+        *ngFor="let row of manche.grille.case; let index_row = index"
+        class="row"
+      >
+        <ion-col
+          class="border"
+          *ngFor="let col of row; let index_col = index"
+          (click)="choose(index_row, index_col)"
+        >
+          <ion-icon
+            name="radio-button-off"
+            size="large"
+            *ngIf="col == 1"
+          ></ion-icon>
+          <ion-icon name="close" size="large" *ngIf="col == 5"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+
+  <ion-text class="ion-margin">Tour: {{ theTour }}</ion-text>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="center">
+    <ion-button shape="round" color="tertiary" (click)="leave()">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      LEAVE
+    </ion-button>
+  </ion-fab>
+</ion-content>

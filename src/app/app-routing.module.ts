@@ -27,6 +27,10 @@ const routes: Routes = [
     path: 'setup',
     loadChildren: () => import('./setup/setup.module').then( m => m.SetupPageModule)
   },
+  {
+    path: 'game-multi',
+    loadChildren: () => import('./game-multi/game-multi.module').then( m => m.GameMultiPageModule)
+  },
 ];
 
 @NgModule({
