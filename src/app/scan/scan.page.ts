@@ -44,12 +44,12 @@ export class ScanPage {
   ) {}
 
   async ionViewDidEnter() {
-    // await this.StartCamera();
-    // this.running = true;
-    // this.detect();
+    await this.StartCamera();
+    this.running = true;
+    this.detect();
     this.getPayer();
     // pour developpement
-    this.detectImage();
+    // this.detectImage();
   }
 
   getPayer() {
@@ -108,7 +108,8 @@ export class ScanPage {
 
   async showMessage(msg: string, title: string = '') {
     const alert = await this.toast.create({
-      message: msg
+      message: msg,
+      duration: 1500
     });
     await alert.present();
   }
@@ -854,7 +855,7 @@ export class ScanPage {
 
             // Différence entre canaux : signal clé pour distinguer rouge/vert/blanc
             const diffRG = r - g;
-            const threshold = 0; // marge de sécurité (tes écarts réels sont ~165-170)
+            const threshold = 15; // marge de sécurité (tes écarts réels sont ~165-170)
             const isX = diffRG > threshold; // rouge : R domine
             const isO = diffRG < -threshold; // vert : G domine
 
