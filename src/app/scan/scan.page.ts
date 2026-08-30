@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CameraPreview } from '@capacitor-community/camera-preview';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, IonModal, ToastController } from '@ionic/angular';
 import * as cs from '@techstark/opencv-js';
 import { HttpService } from '../services/http.service';
 import { ModelMorpionService } from '../services/model-morpion.service';
@@ -18,6 +18,8 @@ export class ScanPage {
   opencvCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('drawCanvas', { static: true })
   drawCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('modal') modal!: IonModal;
+  public statusOver: 'win' | 'lose' | null = 'win';
 
   private running = false;
   private stream: MediaStream | null = null;
@@ -29,6 +31,18 @@ export class ScanPage {
   public player!: 'X' | 'O' | null;
   private adress!: string;
   private port!: number;
+
+  private audio = new Audio('assets/win.mp3');
+  private readonly LIGNES_GAGNANTES: number[][] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
   public board: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   public boardInit: (-1 | 0 | 1)[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -44,27 +58,57 @@ export class ScanPage {
   ) {}
 
   async ionViewDidEnter() {
-    await this.StartCamera();
-    this.running = true;
-    this.detect();
+    // await this.StartCamera();
+    // this.running = true;
+    // this.detect();
     this.getPayer();
     // pour developpement
-    // this.detectImage();
+    this.detectImage();
+    this.openModal();
   }
 
   getPayer() {
     const serverConfig = localStorage.getItem('serverConfig');
     if (serverConfig) {
       const setup = JSON.parse(serverConfig);
-      this.player = setup.pion == 5 ? "X" : "O";
+      this.player = setup.pion == 5 ? 'X' : 'O';
       this.adress = setup.adress;
       this.port = setup.port;
-      console.log("ser set", setup);
-      
+      console.log('ser set', setup);
     }
   }
 
+  detecterGagnant(): 'X' | 'O' | 'draw' | null {
+    for (const [a, b, c] of this.LIGNES_GAGNANTES) {
+      const valA = this.boardPlayer[a];
+      const valB = this.boardPlayer[b];
+      const valC = this.boardPlayer[c];
+
+      if (valA === 0) continue; // case vide, pas d'alignement possible ici
+
+      if (valA === valB && valB === valC) {
+        return valA === 1 ? 'X' : 'O';
+      }
+    }
+
+    const plateauPlein = this.boardPlayer.every((value) => value !== 0);
+    if (plateauPlein) {
+      return 'draw';
+    }
+
+    return null;
+  }
+
   detecterTour(): 'X' | 'O' | null {
+    const gagnant = this.detecterGagnant();
+    if (gagnant != null) {
+      this.statusOver = gagnant == this.player ? 'win' : 'lose';
+      this.openModal();
+      this.running = false;
+      this.audio.play();
+      console.log(gagnant === 'draw' ? 'Match nul' : `Victoire de ${gagnant}`);
+      return null;
+    }
     const nombreX = this.boardPlayer.filter((value) => value === 1).length;
     const nombreO = this.boardPlayer.filter((value) => value === -1).length;
     // Plateau vide → X commence
@@ -91,27 +135,40 @@ export class ScanPage {
   jouer(board: (-1 | 0 | 1)[]) {
     this.meilleurCoupBot(board, (coup: number) => {
       const { row, col } = this.indexToPosition(coup);
-      console.log("player ", this.player, " want to play on", coup);
-      
+      console.log('player ', this.player, ' want to play on', coup);
+
       if (this.player)
         this.server
           .move(this.player, row, col, `${this.adress}:${this.port}`)
-          .subscribe((result: any) => {
-            console.log("result", result);
-          },
-        (err) => {
-          this.showMessage(err.error.error || err.message || err, "Server Error");
-          console.log("erreur server", err);
-        });
+          .subscribe(
+            (result: any) => {
+              console.log('result', result);
+            },
+            (err) => {
+              this.showMessage(
+                err.error.error || err.message || err,
+                'Server Error'
+              );
+              console.log('erreur server', err);
+            }
+          );
     });
   }
 
   async showMessage(msg: string, title: string = '') {
     const alert = await this.toast.create({
       message: msg,
-      duration: 1500
+      duration: 1500,
     });
     await alert.present();
+  }
+
+  async openModal(): Promise<void> {
+    await this.modal.present();
+  }
+
+  async closeModal(): Promise<void> {
+    await this.modal.dismiss();
   }
 
   /**
