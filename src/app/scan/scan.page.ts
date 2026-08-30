@@ -19,7 +19,7 @@ export class ScanPage {
   @ViewChild('drawCanvas', { static: true })
   drawCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('modal') modal!: IonModal;
-  public statusOver: 'win' | 'lose' | null = 'win';
+  public statusOver: 'win' | 'lose' | null = null;
 
   private running = false;
   private stream: MediaStream | null = null;
@@ -58,13 +58,12 @@ export class ScanPage {
   ) {}
 
   async ionViewDidEnter() {
-    // await this.StartCamera();
-    // this.running = true;
-    // this.detect();
+    await this.StartCamera();
+    this.running = true;
+    this.detect();
     this.getPayer();
     // pour developpement
-    this.detectImage();
-    this.openModal();
+    // this.detectImage();
   }
 
   getPayer() {
