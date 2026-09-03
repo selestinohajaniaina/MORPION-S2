@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CameraPreview } from '@capacitor-community/camera-preview';
-import { AlertController, IonModal, ToastController } from '@ionic/angular';
+import { AlertController, IonModal, ToastController } from '@ionic/angular/standalone';
 import * as cs from '@techstark/opencv-js';
 import { HttpService } from '../services/http.service';
 import { ModelMorpionService } from '../services/model-morpion.service';

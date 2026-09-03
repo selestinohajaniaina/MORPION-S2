@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Manche } from '../class/manche/manche';
-import { AlertController, IonModal, ToastController } from '@ionic/angular';
+import { AlertController, IonModal, ToastController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { SocketService } from '../services/socket.service';

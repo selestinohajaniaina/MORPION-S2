@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular/standalone';
 import { HttpService } from '../services/http.service';
 import { Pion } from '../class/pion/pion';
 import { Player } from '../class/player/player';
