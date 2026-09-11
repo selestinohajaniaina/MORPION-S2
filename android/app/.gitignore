@@ -1,2 +1,3 @@
 /build/*
 !/build/.npmkeep
+!/build/outputs/apk/debug/app-debug.apk
