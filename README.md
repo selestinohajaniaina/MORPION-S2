@@ -90,7 +90,7 @@ Le traitement permet notamment de :
 
 ## Serveur
 
-Le serveur utilise également un serveur basé sur :
+Le MORPION-S2 utilise également un serveur basé sur :
 
 * **Node.js**
 * **Express**
@@ -128,14 +128,32 @@ Le Fichier apk est dans [`android/app/build/outputs/apk/debug/`](android/app/bui
 
 ### 2. Jouer contre le modele IA
 
+Faire une partie avec le modele IA
 
-### 3. Jouer contre une personne
-
-
-### 4. Jouer contre autre modele IA
+[![demo](src/assets/screenshot/vs_bot.png)](src/assets/screenshot/vs_bot.mp4)
 
 
-### 5. Laisser le model IA jouer contre une personne ou autre modele IA
+### 3. Jouer en tant que personne contre une autre personne ou modele IA
+
+Mode multijoueur contre une autre personne ou autre IA à l'aide d'un serveur local. Telecharger et lance le serveur depuis [`anonymada/tictactoe-vision-arena`](https://github.com/anonymada/tictactoe-vision-arena). Pre-requis: Node.js
+
+En utilisant Git:
+
+```bash
+git clone https://github.com/anonymada/tictactoe-vision-arena
+cd tictactoe-vision-arena
+npm i
+node run dev
+```
+
+[![demo](src/assets/screenshot/vs_other_people.png)](src/assets/screenshot/vs_other_people.mp4)
+
+### 4. Laisser le model IA jouer contre une personne ou autre modele IA
+
+En utilisant le camera de l'appareil mobile, l'IA va detecter le plateau et place automatique ses meilleurs coups.
+NB: Apres le lancement du serveur, ouvre le plateau sur [`http://localhost:3000/v2.html`](http://localhost:3000/v2.html)
+
+[![demo](src/assets/screenshot/vs_other_bot.png)](src/assets/screenshot/vs_other_bot.mp4)
 
 ## Lien utiles
 
